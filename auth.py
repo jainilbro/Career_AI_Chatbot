@@ -29,8 +29,9 @@ def _normalize_libsql_url(url: str) -> str:
 
 def get_db_connection():
     """
-    Use Turso's libsql endpoint only; reject wss:// and region-scoped hosts
-    to avoid 505 Invalid response status.
+    Create a sync client for Turso/libsql using Streamlit secrets.
+    Prefer libsql://; if the WebSocket handshake fails (e.g., 505),
+    fall back to HTTP transport via libsql+https://.
     """
     try:
         raw_url = str(st.secrets["TURSO_DATABASE_URL"]).strip()
@@ -38,16 +39,42 @@ def get_db_connection():
     except Exception as e:
         raise RuntimeError("Missing secrets: set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN") from e
 
-    # Must be libsql://<db>-<org>.turso.io (no region suffix)
-    if not raw_url.startswith("libsql://"):
-        raise RuntimeError(f"Bad TURSO_DATABASE_URL: '{raw_url}'. Expected 'libsql://<db>-<org>.turso.io'")  # visible in UI
-    if ".aws-" in raw_url or ".gcp-" in raw_url or ".fly-" in raw_url:
-        raise RuntimeError(f"TURSO_DATABASE_URL should NOT include a region: use 'libsql://<db>-<org>.turso.io'")  # visible in UI
     if not token:
-        raise RuntimeError("Empty TURSO_AUTH_TOKEN; generate a new token in Turso")  # visible in UI
+        raise RuntimeError("Empty TURSO_AUTH_TOKEN; generate a new token in Turso")
 
-    return libsql_client.create_client_sync(url=raw_url, auth_token=token)
+    # Normalize the two transports we’ll try
+    def as_libsql(u: str) -> str:
+        if u.startswith("libsql://"):
+            return u
+        if u.startswith("https://"):
+            return "libsql://" + u[len("https://"):]
+        if u.startswith("http://"):
+            return "libsql://" + u[len("http://"):]
+        return "libsql://" + u
 
+    def as_http(u: str) -> str:
+        if u.startswith("libsql+https://") or u.startswith("libsql+http://"):
+            return u
+        if u.startswith("libsql://"):
+            return "libsql+https://" + u[len("libsql://"):]
+        if u.startswith("https://"):
+            return "libsql+https://" + u[len("https://"):]
+        if u.startswith("http://"):
+            return "libsql+http://" + u[len("http://"):]
+        return "libsql+https://" + u
+
+    # Try native (WebSocket) transport first, then HTTP fallback
+    primary_url = as_libsql(raw_url)
+    try:
+        conn = libsql_client.create_client_sync(url=primary_url, auth_token=token)
+        conn.execute("SELECT 1")  # ping early
+        return conn
+    except Exception:
+        # Fallback to HTTP transport to avoid wss handshake issues (505)
+        http_url = as_http(raw_url)
+        conn = libsql_client.create_client_sync(url=http_url, auth_token=token)
+        conn.execute("SELECT 1")
+        return conn
 
 def ensure_db_ready():
     """
