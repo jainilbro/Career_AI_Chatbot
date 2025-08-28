@@ -447,7 +447,7 @@ elif st.session_state.show_register:
             else:
                 hashed_password = hash_password(reg_password)
                 if add_user(reg_username, hashed_password, reg_email):
-                    st.success("Registered successfully! Please log in.")
+                    st.success("Registered successfully!Please save your password securely, as there is no 'Forgot Password' feature.")
                     st.session_state.show_register = False
                 else:
                     st.error("Username or email already exists.")
@@ -518,3 +518,4 @@ if current_messages and current_messages[-1]["role"] == "user":
 
 
                 st.rerun()
+
