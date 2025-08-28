@@ -26,24 +26,28 @@ def _normalize_libsql_url(url: str) -> str:
     # bare host fallback
     return "libsql://" + u
 
+
 def get_db_connection():
     """
-    Create a sync client for Turso/libsql using Streamlit secrets
-    and a libsql:// URL.
+    Use Turso's libsql endpoint only; reject wss:// and region-scoped hosts
+    to avoid 505 Invalid response status.
     """
     try:
-        raw_url = st.secrets["TURSO_DATABASE_URL"]
+        raw_url = str(st.secrets["TURSO_DATABASE_URL"]).strip()
         token = st.secrets["TURSO_AUTH_TOKEN"]
     except Exception as e:
         raise RuntimeError("Missing secrets: set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN") from e
 
-    url = _normalize_libsql_url(raw_url)
-    if not url.startswith(("libsql://", "wss://")):
-        raise RuntimeError(f"Invalid Turso URL scheme: {url} (expected libsql:// or wss://)")
+    # Must be libsql://<db>-<org>.turso.io (no region suffix)
+    if not raw_url.startswith("libsql://"):
+        raise RuntimeError(f"Bad TURSO_DATABASE_URL: '{raw_url}'. Expected 'libsql://<db>-<org>.turso.io'")  # visible in UI
+    if ".aws-" in raw_url or ".gcp-" in raw_url or ".fly-" in raw_url:
+        raise RuntimeError(f"TURSO_DATABASE_URL should NOT include a region: use 'libsql://<db>-<org>.turso.io'")  # visible in UI
     if not token:
-        raise RuntimeError("Empty TURSO_AUTH_TOKEN; generate a new token in Turso")
+        raise RuntimeError("Empty TURSO_AUTH_TOKEN; generate a new token in Turso")  # visible in UI
 
-    return libsql_client.create_client_sync(url=url, auth_token=token)
+    return libsql_client.create_client_sync(url=raw_url, auth_token=token)
+
 
 def ensure_db_ready():
     """
