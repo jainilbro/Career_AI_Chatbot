@@ -138,9 +138,9 @@ def generate_session_token(username):
     conn = get_db_connection()
     try:
         conn.batch([
-            "DELETE FROM sessions WHERE username = ?",
-            "INSERT INTO sessions (username, token) VALUES (?, ?)"
-        ], [[username], [username, token]])
+            ("DELETE FROM sessions WHERE username = ?", [username]),
+            ("INSERT INTO sessions (username, token) VALUES (?, ?)", [username, token])
+        ])
     finally:
         conn.close()
     return token
