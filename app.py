@@ -17,7 +17,6 @@ from auth import ensure_db_ready
 try:
     ensure_db_ready()
 except Exception as e:
-    import streamlit as st
     st.error(str(e))
     st.stop()
 
@@ -519,5 +518,6 @@ if current_messages and current_messages[-1]["role"] == "user":
                 # Save if authenticated
                 if st.session_state.authenticated:
                     save_chat_history(st.session_state.username, st.session_state.history)
+
 
                 st.rerun()
