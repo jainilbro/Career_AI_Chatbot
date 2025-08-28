@@ -289,7 +289,7 @@ with st.sidebar:
             st.session_state.current_chat_id = sorted_chat_ids[0]
         st.rerun()
 
-    use_web_search = st.toggle("Enable Web Search", key="web_search_toggle", help="Allow the AI to search the web.")
+    use_web_search = st.toggle("Web Search", key="web_search_toggle", help="Allow the AI to search the web.")
     
     # --- PDF Export Button ---
     if st.session_state.current_chat_id and len(st.session_state.history[st.session_state.current_chat_id]["messages"]) > 1:
@@ -515,5 +515,6 @@ if current_messages and current_messages[-1]["role"] == "user":
                 # Save if authenticated
                 if st.session_state.authenticated:
                     save_chat_history(st.session_state.username, st.session_state.history)
+
 
                 st.rerun()
