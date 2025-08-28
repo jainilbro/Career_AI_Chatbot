@@ -12,12 +12,8 @@ def get_db_connection():
         url = st.secrets["TURSO_DATABASE_URL"]
         auth_token = st.secrets["TURSO_AUTH_TOKEN"]
 
-        # Force the URL to use the libsql+ scheme for HTTP transport
-        if url.startswith("https://"):
-            url = "libsql+" + url
-        elif url.startswith("http://"):
-             url = "libsql+" + url
-
+        # The library handles the 'https://' scheme directly for HTTP transport.
+        # No need to add any prefix.
         return libsql_client.create_client_sync(url=url, auth_token=auth_token)
 
     except KeyError:
