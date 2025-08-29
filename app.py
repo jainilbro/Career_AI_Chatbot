@@ -268,23 +268,28 @@ with st.sidebar:
             for key in list(st.session_state.keys()):
                 del st.session_state[key]
             st.rerun()
+            
     else:
         col1, col2 = st.columns(2)
     with col1:
         if st.button("Login", use_container_width=True):
-
-            if not st.session_state.show_login: # If we are about to SHOW the form
+            if not st.session_state.get('show_login', False):
                 st.session_state.history = {}
                 st.session_state.current_chat_id = None
-            st.session_state.show_login = not st.session_state.show_login
+
+            st.session_state.show_login = True
             st.session_state.show_register = False
+            st.rerun() # Add a rerun to ensure the UI updates immediately
+
     with col2:
         if st.button("Register", use_container_width=True):
-            if not st.session_state.show_register: # If we are about to SHOW the form
+            if not st.session_state.get('show_register', False):
                 st.session_state.history = {}
                 st.session_state.current_chat_id = None
-            st.session_state.show_register = not st.session_state.show_register
+
+            st.session_state.show_register = True
             st.session_state.show_login = False
+            st.rerun()
 
     st.header("📝 Chat History")
 
@@ -528,6 +533,7 @@ if current_messages and current_messages[-1]["role"] == "user":
 
 
                 st.rerun()
+
 
 
 
