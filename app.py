@@ -279,7 +279,7 @@ with st.sidebar:
             st.session_state.show_login = not st.session_state.show_login
             st.session_state.show_register = False
     with col2:
-        if st.button("Register", use_container_width=True)
+        if st.button("Register", use_container_width=True):
             if not st.session_state.show_register: # If we are about to SHOW the form
                 st.session_state.history = {}
                 st.session_state.current_chat_id = None
@@ -528,6 +528,7 @@ if current_messages and current_messages[-1]["role"] == "user":
 
 
                 st.rerun()
+
 
 
 
