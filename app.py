@@ -152,51 +152,58 @@ def get_bot_response(messages: list) -> str:
         st.error(f"An unexpected error occurred.")
     return ""
         
+
 def format_chat_for_export(messages, title):
-    """Creates a well-formatted PDF with improved subheading detection."""
+    """Creates a well-formatted PDF using standard, compatible fonts."""
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=30, bottomMargin=30)
     styles = getSampleStyleSheet()
-    
-    # Define styles
+
+    # Define styles using the standard 'Helvetica' font
     styles.add(ParagraphStyle(name='MainHeading', parent=styles['h2'], fontName='Helvetica-Bold', fontSize=14, spaceAfter=10))
     styles.add(ParagraphStyle(name='SubHeading', parent=styles['BodyText'], fontName='Helvetica-Bold', spaceBefore=8, spaceAfter=4, leftIndent=10))
-    styles.add(ParagraphStyle(name='BulletStyle', parent=styles['BodyText'], leftIndent=36, bulletIndent=18))
-    styles['BodyText'].fontName = 'NotoSans'
-    styles['h1'].fontName = 'NotoSans'
-    styles['h3'].fontName = 'NotoSans'
+    styles.add(ParagraphStyle(name='BulletStyle', parent=styles['BodyText'], leftIndent=36, bulletIndent=18, fontName='Helvetica'))
+    styles['BodyText'].fontName = 'Helvetica'
+    styles['h1'].fontName = 'Helvetica-Bold'
+    styles['h3'].fontName = 'Helvetica-Bold'
+
     story = []
-    
+
     story.append(Paragraph(title, styles['h1']))
     story.append(Spacer(1, 24))
 
     for msg in messages:
         if msg["role"] != "system":
-            story.append(Paragraph(f"{msg['role'].capitalize()}:", styles['h3']))
-            
-            content_lines = msg['content'].split('\n')
+            role_text = msg.get('role', 'unknown').capitalize()
+            story.append(Paragraph(f"{role_text}:", styles['h3']))
+
+            # Ensure content exists and is a string before splitting
+            content = msg.get('content', '')
+            if not isinstance(content, str):
+                content = str(content)
+
+            content_lines = content.split('\n')
             for line in content_lines:
                 clean_line = line.strip()
 
-                if not clean_line or clean_line == '---':
-                    continue
+                if clean_line:
+                    # Escape potential HTML characters to be safe
+                    from xml.sax.saxutils import escape
+                    safe_line = escape(clean_line)
 
-                # --- THIS IS THE KEY CHANGE FOR SUBHEADINGS ---
-                # Check for numbered headings (e.g., "1. Text:") or bolded text
-                if (clean_line[0].isdigit() and clean_line[1] == '.' and clean_line.endswith(':')) or clean_line.endswith(':'):
-                    story.append(Paragraph(clean_line.replace('*',''), styles['SubHeading']))
-                # --- END OF CHANGE ---
-                elif clean_line.startswith('###'):
-                    story.append(Paragraph(clean_line.replace('#', '').replace('*','').strip(), styles['MainHeading']))
-                elif clean_line.startswith('-'):
-                    story.append(Paragraph(clean_line[1:].replace('*','').strip(), styles['BulletStyle'], bulletText='•'))
-                else:
-                    story.append(Paragraph(clean_line.replace('*',''), styles['BodyText']))
-            
+                    if (safe_line[0].isdigit() and safe_line[1] == '.' and safe_line.endswith(':')) or safe_line.endswith(':'):
+                        story.append(Paragraph(safe_line.replace('*',''), styles['SubHeading']))
+                    elif safe_line.startswith('###'):
+                        story.append(Paragraph(safe_line.replace('#', '').replace('*','').strip(), styles['MainHeading']))
+                    elif safe_line.startswith('-'):
+                        story.append(Paragraph(safe_line[1:].replace('*','').strip(), styles['BulletStyle'], bulletText='•'))
+                    else:
+                        story.append(Paragraph(safe_line.replace('*',''), styles['BodyText']))
+
             story.append(Spacer(1, 12))
 
     doc.build(story)
-    
+
     pdf_value = buffer.getvalue()
     buffer.close()
     return pdf_value
@@ -514,5 +521,6 @@ if current_messages and current_messages[-1]["role"] == "user":
 
 
                 st.rerun()
+
 
 
