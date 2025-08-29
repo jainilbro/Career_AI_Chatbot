@@ -158,10 +158,6 @@ def format_chat_for_export(messages, title):
     doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=30, bottomMargin=30)
     styles = getSampleStyleSheet()
     
-    from reportlab.pdfbase import pdfmetrics
-    from reportlab.pdfbase.ttfonts import TTFont
-    pdfmetrics.registerFont(TTFont('NotoSans', 'NotoSans-Regular.ttf'))
-
     # Define styles
     styles.add(ParagraphStyle(name='MainHeading', parent=styles['h2'], fontName='Helvetica-Bold', fontSize=14, spaceAfter=10))
     styles.add(ParagraphStyle(name='SubHeading', parent=styles['BodyText'], fontName='Helvetica-Bold', spaceBefore=8, spaceAfter=4, leftIndent=10))
@@ -518,4 +514,5 @@ if current_messages and current_messages[-1]["role"] == "user":
 
 
                 st.rerun()
+
 
