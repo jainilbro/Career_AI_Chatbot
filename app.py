@@ -58,7 +58,7 @@ def delete_cookie(key):
 # ---------------------------------------------------
 # App Configuration
 # ---------------------------------------------------
-st.set_page_config(page_title="Career AI", layout="wide", initial_sidebar_state="auto")
+st.set_page_config(page_title="Career AI", layout="wide", initial_sidebar_state="collapsed")
 
 # Disable auto-scrolling to the last message
 chat_css = """
@@ -521,6 +521,7 @@ if current_messages and current_messages[-1]["role"] == "user":
 
 
                 st.rerun()
+
 
 
 
