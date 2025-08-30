@@ -539,12 +539,12 @@ else:
                     final_prompt_messages.append(web_prompt)
                 bot_reply = get_bot_response(final_prompt_messages)
                 if bot_reply:
-                    st.markdown(bot_reply)
                     st.session_state.history[st.session_state.current_chat_id]["messages"].append(
                         {"role": "assistant", "content": bot_reply}
                     )
                     # Save if authenticated
                     if st.session_state.authenticated:
                         save_chat_history(st.session_state.username, st.session_state.history)
+
 
                     st.rerun()
