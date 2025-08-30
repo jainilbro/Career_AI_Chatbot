@@ -59,7 +59,6 @@ def delete_cookie(key):
 # ---------------------------------------------------
 st.set_page_config(page_title="Career AI", layout="wide", initial_sidebar_state="collapsed")
 
-# Disable auto-scrolling to the last message
 chat_css = """
 <style>
 [data-testid="stChatMessage"] {
@@ -80,7 +79,6 @@ hide_logo_fs = """
 """
 st.markdown(hide_logo_fs, unsafe_allow_html=True)
 
-# System Prompt (Moved here to be defined before use)
 SYSTEM_PROMPT = {"role": "system", "content": "You are a helpful career guidance assistant..."}
 
 # ---------------------------------------------------
@@ -524,5 +522,6 @@ if current_messages and current_messages[-1]["role"] == "user":
                 # Save if authenticated
                 if st.session_state.authenticated:
                     save_chat_history(st.session_state.username, st.session_state.history)
+
 
                 st.rerun()
