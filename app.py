@@ -287,6 +287,8 @@ with st.sidebar:
 
     # --- "New Chat" Button with corrected logic ---
     if st.button("➕ New Chat", use_container_width=True):
+        st.session_state.show_login = False
+        st.session_state.show_register = False
         sorted_chat_ids = sorted(st.session_state.history.keys(), reverse=True)
         if not sorted_chat_ids or st.session_state.history[sorted_chat_ids[0]]["title"] != "New Chat":
             new_chat_id = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -525,3 +527,4 @@ if current_messages and current_messages[-1]["role"] == "user":
 
 
                 st.rerun()
+
