@@ -1,7 +1,6 @@
 import streamlit as st
 import requests
 import extra_streamlit_components as stx
-import markdown
 import base64
 import textwrap
 import re
@@ -652,5 +651,6 @@ else:
                     # Save if authenticated
                     if st.session_state.get("authenticated"):
                         save_chat_history(st.session_state.username, st.session_state.history)
+
 
                     st.rerun()
