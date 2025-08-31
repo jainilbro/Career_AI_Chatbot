@@ -27,6 +27,10 @@ if 'cookie_manager' not in st.session_state:
     st.session_state.cookie_manager = stx.CookieManager()
 
 cookie_manager = st.session_state.cookie_manager
+try:
+    cookie_manager.get_all()  
+except:
+    st.stop()
 
 EMAIL_RE = re.compile(
     r'^[a-zA-Z0-9]'                     # Must start with alphanumeric
@@ -652,4 +656,5 @@ else:
 
 
                     st.rerun()
+
 
