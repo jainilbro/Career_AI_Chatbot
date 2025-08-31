@@ -5,7 +5,7 @@ import base64
 import textwrap
 import re
 from duckduckgo_search import DDGS
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from io import BytesIO
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
@@ -471,14 +471,12 @@ if st.session_state.get("show_login"):
                 st.session_state.username = username
                 st.session_state.history = load_chat_history(username)
 
-
                 token = generate_session_token(st.session_state.username)
                 cookie_manager.set(
                     "session_token",
                     token,
-                    max_age=30*24*60*60  
+                    expires_at=datetime.now(timezone.utc) + timedelta(days=30)
                 )
-
 
                 if not st.session_state.history:
                     new_chat_id = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -654,3 +652,4 @@ else:
 
 
                     st.rerun()
+
