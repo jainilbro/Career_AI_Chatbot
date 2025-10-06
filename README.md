@@ -20,9 +20,10 @@ This app helps users explore career paths, ask questions, and optionally registe
 - (Optional) Login/Register to save chats.  
 - Export your conversation as a **PDF**.  
 
----
-The code is written by AI.
----
 
 📜 License
 MIT License – free to use and modify.  
+
+---
+#### This code is written by AI.
+---
