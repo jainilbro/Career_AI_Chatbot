@@ -21,6 +21,8 @@ This app helps users explore career paths, ask questions, and optionally registe
 - Export your conversation as a **PDF**.  
 
 ---
+The code is written by AI.
+---
 
 📜 License
 MIT License – free to use and modify.  
